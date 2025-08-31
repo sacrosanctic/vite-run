@@ -22,9 +22,7 @@ const { command, args } = resolveCommand(
     ...args2]
   )
 
-console.log(`Detected the ${pm.agent} package manager.
-  
-  running "${command}" ${args.join(' ')}`)
+console.log(`Detected the ${pm.agent} package manager.\n\nrunning...${command} ${args.join(' ')}\n\n`)
 
 const result = spawnSync(command, args, { stdio: "inherit" });
 
