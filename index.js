@@ -18,7 +18,7 @@ const { command, args } = resolveCommand(
   'execute',
   [
     "vite-node",
-    "--options.transformMode.ssr=/.*/",
+    "--options.transformMode.ssr='/.*/'",
     ...args2]
   )
 
