@@ -7,12 +7,7 @@ import { join } from 'path'
 import { tmpdir } from 'os'
 
 const runTempScript = (pm, args) => {
-const {command, args:ar} = resolveCommand(
-  pm.agent,
-  'execute',
-  [...args]
-)
-
+	const { command, args: ar } = resolveCommand(pm.agent, 'execute', [...args])
 
 	const scriptContent = `
 import { execSync } from 'child_process'
@@ -31,45 +26,37 @@ try {
 	writeFileSync(tempFile, scriptContent)
 
 	console.log(`Running in directory: ${process.cwd()}`)
-  console.log(`Detecting package manager: ${pm.agent}`)
+	console.log(`Detecting package manager: ${pm.agent}`)
 	console.log(`Command to run: ${args.join(' ')}`)
 	console.log(`Executing via vite-node: ${tempFile}\n`)
 
 	// Execute the temporary script with vite-node
-const { command:command2, args:ar2 } = resolveCommand(
-  pm.agent,
-  'execute',
-  [
-    "vite-node",
-    "--options.transformMode.ssr='/.*/'",
-    tempFile]
-  )
-
-
+	const { command: command2, args: ar2 } = resolveCommand(pm.agent, 'execute', [
+		'vite-node',
+		"--options.transformMode.ssr='/.*/'",
+		tempFile,
+	])
 
 	try {
-		execSync(`${command} ${ar2.join(' ')}`, { stdio: 'inherit' })
+		execSync(`${command2} ${ar2.join(' ')}`, { stdio: 'inherit' })
 	} finally {
 		// Clean up the temporary script file
 		unlinkSync(tempFile)
 	}
 }
 
+const main = async () => {
+	const [, , ...args] = process.argv
 
-const main = async() => {
-  const [, , ...args] = process.argv;
+	if (args.length === 0) {
+		console.error('Usage: run-vite <command> [args...]')
+		process.exit(1)
+	}
 
-if (args.length === 0) {
-  console.error("Usage: run-vite <command> [args...]");
-  process.exit(1);
-}
+	const pm = await detect()
+	if (!pm) throw new Error('Could not detect package manager')
 
-const pm = await detect()
-if (!pm) throw new Error('Could not detect package manager')
-
-runTempScript(pm, args)
-
-
+	runTempScript(pm, args)
 }
 
 main().catch((err) => {
