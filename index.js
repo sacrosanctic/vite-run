@@ -4,7 +4,6 @@ import { detect } from 'package-manager-detector/detect'
 import { execSync } from 'child_process'
 import { writeFileSync, unlinkSync } from 'fs'
 import { join } from 'path'
-import { tmpdir } from 'os'
 
 const runTempScript = (pm, args) => {
 const {command, args:executeArgs} = resolveCommand(
@@ -26,7 +25,7 @@ try {
 `
 
 	// Write the script to a temp file
-	const tempFile = join(tmpdir(), `.vite-run-${Date.now()}.tmp.js`)
+	const tempFile = join('./', `.vite-run-${Date.now()}.tmp.js`)
 	writeFileSync(tempFile, scriptContent)
 
 	console.log(`Running in directory: ${process.cwd()}`)
