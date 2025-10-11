@@ -1,11 +1,64 @@
 #!/usr/bin/env node
 import { resolveCommand } from 'package-manager-detector/commands'
 import { detect } from 'package-manager-detector/detect'
-import { spawnSync } from 'child_process'
+import { execSync } from 'child_process'
+import { writeFileSync, unlinkSync } from 'fs'
+import { join } from 'path'
 
-const [, , ...args2] = process.argv;
+const runTempScript = (pm, args) => {
+const {command, args:ar} = resolveCommand(
+  pm.agent,
+  'execute',
+  [...args]
+)
 
-if (args2.length === 0) {
+
+	const scriptContent = `
+import { execSync } from 'child_process'
+
+try {
+	console.log('> ${command} ${ar.join(' ')}')
+	execSync('${command} ${ar.join(' ')}', { stdio: 'inherit' })
+} catch (error) {
+	console.error('Command execution failed:', error)
+	process.exit(1)
+}
+`
+
+	// Write the script to a temp file
+	const tempFile = join('./', `.better-auth-run-${Date.now()}.tmp.js`)
+	writeFileSync(tempFile, scriptContent)
+
+	console.log(`Running in directory: ${process.cwd()}`)
+  console.log(`Detecting package manager: ${pm.agent}`)
+	console.log(`Command to run: ${args.join(' ')}`)
+	console.log(`Executing via vite-node: ${tempFile}\n`)
+
+	// Execute the temporary script with vite-node
+const { command:command2, args:ar2 } = resolveCommand(
+  pm.agent,
+  'execute',
+  [
+    "vite-node",
+    "--options.transformMode.ssr='/.*/'",
+    tempFile]
+  )
+
+
+
+	try {
+		execSync(`${command} ${ar2.join(' ')}`, { stdio: 'inherit' })
+	} finally {
+		// Clean up the temporary script file
+		unlinkSync(tempFile)
+	}
+}
+
+
+const main = async() => {
+  const [, , ...args] = process.argv;
+
+if (args.length === 0) {
   console.error("Usage: run-vite <command> [args...]");
   process.exit(1);
 }
@@ -13,17 +66,13 @@ if (args2.length === 0) {
 const pm = await detect()
 if (!pm) throw new Error('Could not detect package manager')
 
-const { command, args } = resolveCommand(
-  pm.agent,
-  'execute',
-  [
-    "vite-node",
-    "--options.transformMode.ssr='/.*/'",
-    ...args2]
-  )
+runTempScript(pm, args)
 
-console.log(`Detected the ${pm.agent} package manager.\n\nrunning...${command} ${args.join(' ')}\n\n`)
 
-execSync(`${command} ${args.join(" ")}`, { stdio: "inherit" })
+}
 
-process.exit(result.status);
+main().catch((err) => {
+	console.error(err)
+	process.exit(1)
+})
+
