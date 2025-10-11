@@ -1,6 +1,5 @@
-import { exec, execSync } from 'child_process'
-import { expect, it } from 'vitest'
-
+import { execSync } from 'child_process'
+import { expect, it } from 'viit'
 
 it('should exit with an error if no command is provided', () => {
     try {
@@ -18,6 +17,15 @@ it('should handle command not found', () => {
     }
 })
 
-it('should test for successful execution', () => {
+it('should run a simple command', () => {
+  const output = execSync('node ./index.js echo "hello world"').toString().trim()
+  expect(output).toContain('hello world')
 })
 
+it('should run a simple command with vite api and fail', () => {
+  const output = execSync('node ./vite-script.js').toString().trim()
+})
+
+
+it('should run a simple command that uses the vite api and pass', () => {
+  const output = execSync('node ./index.js ./vite-script.js').toString().trim()})

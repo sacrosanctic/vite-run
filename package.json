@@ -9,9 +9,9 @@
 	"files": [
 		"index.js"
 	],
-	"scripts": {
-		"test": "vitest"
-	},
+  "scripts": {
+    "test": "vitest"
+  },
 	"dependencies": {
 		"package-manager-detector": "^1.3.0"
 	},
