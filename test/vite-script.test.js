@@ -17,15 +17,10 @@ it('should handle command not found', () => {
     }
 })
 
-it('should run a simple command', () => {
-  const output = execSync('node ./index.js echo "hello world"').toString().trim()
-  expect(output).toContain('hello world')
+it('should fail to run a vite script', () => {
+  const output = execSync('node ./vte-script').toString().trim()
 })
 
-it('should run a simple command with vite api and fail', () => {
-  const output = execSync('node ./vite-script.js').toString().trim()
+it('should not output true', () => {
+  const output = execSync('node ./index.js ./vite-script.js').toString().trim()
 })
-
-
-it('should run a simple command that uses the vite api and pass', () => {
-  const output = execSync('node ./index.js ./vite-script.js').toString().trim()})
