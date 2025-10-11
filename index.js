@@ -7,14 +7,18 @@ import { join } from 'path'
 import { tmpdir } from 'os'
 
 const runTempScript = (pm, args) => {
-	const { command, args: ar } = resolveCommand(pm.agent, 'execute', [...args])
+const {command, args:executeArgs} = resolveCommand(
+  pm.agent,
+  'execute',
+  [...args]
+)
 
 	const scriptContent = `
 import { execSync } from 'child_process'
 
 try {
-	console.log('> ${command} ${ar.join(' ')}')
-	execSync('${command} ${ar.join(' ')}', { stdio: 'inherit' })
+	console.log('> ${command} ${executeArgs.join(' ')}')
+	execSync('${command} ${executeArgs.join(' ')}', { stdio: 'inherit' })
 } catch (error) {
 	console.error('Command execution failed:', error)
 	process.exit(1)
@@ -31,18 +35,21 @@ try {
 	console.log(`Executing via vite-node: ${tempFile}\n`)
 
 	// Execute the temporary script with vite-node
-	const { command: command2, args: ar2 } = resolveCommand(pm.agent, 'execute', [
-		'vite-node',
-		"--options.transformMode.ssr='/.*/'",
-		tempFile,
-	])
+const { command:viteNodeCommand, args:viteNodeArgs } = resolveCommand(
+  pm.agent,
+  'execute',
+  [
+    "vite-node",
+    "--options.transformMode.ssr='/.*/'",
+    tempFile]
+  )
 
-	try {
-		execSync(`${command2} ${ar2.join(' ')}`, { stdio: 'inherit' })
-	} finally {
-		// Clean up the temporary script file
-		unlinkSync(tempFile)
-	}
+		try {
+			execSync(`${viteNodeCommand} ${viteNodeArgs.join(' ')}`, { stdio: 'inherit' })
+		} finally {
+			// Clean up the temporary script file
+			unlinkSync(tempFile)
+		}
 }
 
 const main = async () => {
