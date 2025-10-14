@@ -1,17 +1,19 @@
 {
 	"name": "@sacrosanctic/vite-run",
-	"version": "0.0.16",
+	"version": "0.0.17",
 	"type": "module",
 	"main": "index.js",
 	"bin": {
-		"vite-run": "index.js"
+		"vite-run": "index.js",
+		"vite-script-remote": "vite-script.js"
 	},
 	"files": [
-		"index.js"
+		"index.js",
+		"vite-script.js"
 	],
-  "scripts": {
-    "test": "vitest"
-  },
+	"scripts": {
+		"test": "vitest"
+	},
 	"dependencies": {
 		"package-manager-detector": "^1.3.0"
 	},
