@@ -4,11 +4,15 @@ import { detect } from 'package-manager-detector/detect'
 import { execSync } from 'child_process'
 import { writeFileSync, unlinkSync, existsSync } from 'fs'
 import { join } from 'path'
+import which from 'which'
 
 const runTempScript = (pm, args) => {
-	const { command, args: executeArgs } = resolveCommand(pm.agent, 'execute', [
-		...args,
-	])
+	const { command, args: executeArgs } = resolveCommand(
+		//
+		pm.agent,
+		'run',
+		[...args],
+	)
 
 	const scriptContent = `
 import { execSync } from 'child_process'
@@ -33,6 +37,7 @@ try {
 
 	// Execute the temporary script with vite-node
 	const { command: viteNodeCommand, args: viteNodeArgs } = resolveCommand(
+		//
 		pm.agent,
 		'execute',
 		['vite-node', "--options.transformMode.ssr='/.*/'", tempFile],
@@ -56,6 +61,7 @@ const runLocalScript = (pm, args) => {
 
 	// Execute the temporary script with vite-node
 	const { command: viteNodeCommand, args: viteNodeArgs } = resolveCommand(
+		//
 		pm.agent,
 		'execute',
 		['vite-node', "--options.transformMode.ssr='/.*/'", [...args]],
@@ -71,6 +77,22 @@ const runLocalScript = (pm, args) => {
 	}
 }
 
+const resolveScriptExecutable = async (script) => {
+	// 1. Check if it's a direct path to a file
+	if (existsSync(script)) {
+		return script
+	}
+
+	// 2. Check in local node_modules/.bin
+	const localBin = join(process.cwd(), 'node_modules', '.bin', script)
+	if (existsSync(localBin)) {
+		return localBin
+	}
+
+	// 3. Check in global path
+	return which(script, { nothrow: true })
+}
+
 const main = async () => {
 	const [, , ...args] = process.argv
 
@@ -82,6 +104,11 @@ const main = async () => {
 	const pm = await detect()
 	if (!pm) throw new Error('Could not detect package manager')
 
+	// todo: there are essentially 3 scenarios
+	// ./script.ts we can just call it directly (runlocalscript)
+	// pnpm run local-cli  (runtempscript w run)
+	// pnpm dlx remote-cli (runtempscript w dlx)
+	console.log(existsSync(args[[0]]) ? '###local' : '###temp')
 	const fn = existsSync(args[[0]]) ? runLocalScript : runTempScript
 	fn(pm, args)
 }
