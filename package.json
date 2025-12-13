@@ -12,7 +12,7 @@
 		"vite-script.js"
 	],
 	"scripts": {
-		"ship": "pnpm publish --access",
+		"ship": "pnpm publish --access public",
 		"test": "vitest"
 	},
 	"dependencies": {
