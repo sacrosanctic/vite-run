@@ -74,6 +74,7 @@ const runLocalScript = (pm, args) => {
 		})
 	} catch (e) {
 		console.log('execution fail')
+		process.exit(1)
 	}
 }
 

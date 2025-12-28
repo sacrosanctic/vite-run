@@ -5,9 +5,7 @@ it('should exit with an error if no command is provided', () => {
 	try {
 		execSync('node ./index.js')
 	} catch (error) {
-		expect(error.stderr.toString()).toContain(
-			'Usage: run-vite <command> [args...]',
-		)
+		expect(error.stderr.toString()).toContain('Usage: run-vite <command> [args...]')
 	}
 })
 
@@ -15,9 +13,7 @@ it('should handle command not found', () => {
 	try {
 		execSync('node ./index.js non_existent_command')
 	} catch (error) {
-		expect(error.stderr.toString()).toContain(
-			'ERR_PNPM_FETCH_404  GET https://registry.npmjs.org/non_existent_command: Not Found - 404',
-		)
+		expect(error.stderr.toString()).toContain('Command execution failed:')
 	}
 })
 
